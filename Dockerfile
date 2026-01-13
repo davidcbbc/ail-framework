@@ -49,7 +49,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
     && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
     && python -m pip install --no-cache-dir \
       'git+https://github.com/D4-project/BGP-Ranking.git/@7e698f87366e6f99b4d0d11852737db28e3ddc62#egg=pybgpranking&subdirectory=client' \
-      'git+https://github.com/ail-project/DomainClassifier.git' \
+      'https://github.com/ail-project/DomainClassifier/archive/refs/heads/master.tar.gz' \
     && python -m pip install --no-cache-dir tlsh py-tlsh
 
 COPY . .
