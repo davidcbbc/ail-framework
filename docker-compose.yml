@@ -30,7 +30,7 @@ services:
 
   kvrocks:
     image: apache/kvrocks:latest
-    command: ["kvrocks", "-c", "/etc/kvrocks/kvrocks.conf"]
+    command: ["-c", "/etc/kvrocks/kvrocks.conf"]
     volumes:
       - ./configs/docker/kvrocks.conf:/etc/kvrocks/kvrocks.conf:ro
       - kvrocks-data:/data

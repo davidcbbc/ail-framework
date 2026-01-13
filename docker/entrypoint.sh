@@ -13,6 +13,33 @@ if [ ! -f "$AIL_HOME/configs/core.cfg" ]; then
   cp "$AIL_HOME/configs/docker/core.cfg" "$AIL_HOME/configs/core.cfg"
 fi
 
+wait_for_service() {
+  local name="$1"
+  local host="$2"
+  local port="$3"
+
+  echo "[ail] waiting for ${name} at ${host}:${port}"
+  python - <<PY
+import socket
+import time
+host = "${host}"
+port = int("${port}")
+deadline = time.time() + 120
+while time.time() < deadline:
+    try:
+        with socket.create_connection((host, port), timeout=2):
+            raise SystemExit(0)
+    except OSError:
+        time.sleep(2)
+raise SystemExit(1)
+PY
+}
+
+wait_for_service "redis-cache" "redis-cache" 6379
+wait_for_service "redis-log" "redis-log" 6380
+wait_for_service "redis-queue" "redis-queue" 6381
+wait_for_service "kvrocks" "kvrocks" 6383
+
 python "$AIL_BIN/AIL_Init.py"
 
 pids=()
