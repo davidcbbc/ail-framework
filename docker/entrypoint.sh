@@ -13,6 +13,21 @@ if [ ! -f "$AIL_HOME/configs/core.cfg" ]; then
   cp "$AIL_HOME/configs/docker/core.cfg" "$AIL_HOME/configs/core.cfg"
 fi
 
+if [ ! -f "$AIL_FLASK/server.crt" ] || [ ! -f "$AIL_FLASK/server.key" ]; then
+  echo "[ail] generating TLS certificates"
+  pushd "$AIL_HOME/tools/gen_cert" >/dev/null
+  ./gen_root.sh
+  ./gen_cert.sh
+  popd >/dev/null
+  cp "$AIL_HOME/tools/gen_cert/server.crt" "$AIL_FLASK/server.crt"
+  cp "$AIL_HOME/tools/gen_cert/server.key" "$AIL_FLASK/server.key"
+fi
+
+if [ ! -f "$AIL_HOME/files/misp-taxonomies/MANIFEST.json" ]; then
+  echo "[ail] fetching misp-taxonomies"
+  git clone https://github.com/MISP/misp-taxonomies.git "$AIL_HOME/files/misp-taxonomies"
+fi
+
 wait_for_service() {
   local name="$1"
   local host="$2"
@@ -62,7 +77,18 @@ start_bg "ZMQImporter" python "$AIL_BIN/importer/ZMQImporter.py"
 start_bg "FeederImporter" python "$AIL_BIN/importer/FeederImporter.py"
 start_bg "CrawlerImporter" python "$AIL_BIN/importer/CrawlerImporter.py"
 start_bg "D4_client" python "$AIL_BIN/core/D4_client.py"
-start_bg "Translation" python "$AIL_BIN/modules/Translation.py"
+translation_url=$(python - <<'PY'
+import configparser
+config = configparser.ConfigParser()
+config.read("/opt/ail/configs/core.cfg")
+print(config.get("Translation", "libretranslate", fallback="").strip())
+PY
+)
+if [ -n "$translation_url" ]; then
+  start_bg "Translation" python "$AIL_BIN/modules/Translation.py"
+else
+  echo "[ail] skipping Translation module (libretranslate is not configured)"
+fi
 start_bg "UpdateBackground" python "$AIL_BIN/update-background.py"
 
 start_bg "Mixer" python "$AIL_BIN/modules/Mixer.py"
