@@ -1,6 +1,8 @@
 FROM python:3.10-bullseye
 
 ENV AIL_HOME=/opt/ail
+ENV GIT_TERMINAL_PROMPT=0
+ENV PIP_NO_INPUT=1
 WORKDIR $AIL_HOME
 
 RUN set -eux; \
