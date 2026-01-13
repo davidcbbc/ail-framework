@@ -42,7 +42,8 @@ COPY requirements.txt ./
 RUN python -m pip install --no-cache-dir --upgrade pip \
     && grep -v '^pybgpranking' requirements.txt > /tmp/requirements.txt \
     && python -m pip install --no-cache-dir -r /tmp/requirements.txt \
-    && python -m pip install --no-cache-dir 'git+https://github.com/D4-project/BGP-Ranking.git/@7e698f87366e6f99b4d0d11852737db28e3ddc62#egg=pybgpranking&subdirectory=client'
+    && python -m pip install --no-cache-dir 'git+https://github.com/D4-project/BGP-Ranking.git/@7e698f87366e6f99b4d0d11852737db28e3ddc62#egg=pybgpranking&subdirectory=client' \
+    && python -m pip install --no-cache-dir tlsh
 
 COPY . .
 
