@@ -3,35 +3,40 @@ FROM python:3.10-bullseye
 ENV AIL_HOME=/opt/ail
 WORKDIR $AIL_HOME
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    automake \
-    cmake \
-    g++ \
-    gcc \
-    git \
-    graphviz \
-    libadns1 \
-    libadns1-dev \
-    libev-dev \
-    libffi-dev \
-    libfreetype6-dev \
-    libfuzzy-dev \
-    libgmp-dev \
-    libprotobuf-dev \
-    libsnappy-dev \
-    libssl-dev \
-    libtool \
-    libzbar0 \
-    pkg-config \
-    protobuf-compiler \
-    p7zip-full \
-    python3-opencv \
-    rustc \
-    cargo \
-    unzip \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    for i in 1 2 3; do \
+      apt-get update && break; \
+      sleep 5; \
+    done; \
+    apt-get install -y --no-install-recommends --fix-missing \
+      build-essential \
+      automake \
+      cmake \
+      g++ \
+      gcc \
+      git \
+      graphviz \
+      libadns1 \
+      libadns1-dev \
+      libev-dev \
+      libffi-dev \
+      libfreetype6-dev \
+      libfuzzy-dev \
+      libgmp-dev \
+      libprotobuf-dev \
+      libsnappy-dev \
+      libssl-dev \
+      libtool \
+      libzbar0 \
+      pkg-config \
+      protobuf-compiler \
+      p7zip-full \
+      python3-opencv \
+      rustc \
+      cargo \
+      unzip \
+      wget; \
+    rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
 RUN python -m pip install --no-cache-dir --upgrade pip \
