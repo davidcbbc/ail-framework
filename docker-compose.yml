@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  redis-cache:
+    image: redis:5.0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./configs/docker/redis-6379.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-cache-data:/data
+    ports:
+      - "6379:6379"
+
+  redis-log:
+    image: redis:5.0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./configs/docker/redis-6380.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-log-data:/data
+    ports:
+      - "6380:6380"
+
+  redis-queue:
+    image: redis:5.0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - ./configs/docker/redis-6381.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-queue-data:/data
+    ports:
+      - "6381:6381"
+
+  kvrocks:
+    image: apache/kvrocks:latest
+    command: ["-c", "/etc/kvrocks/kvrocks.conf"]
+    volumes:
+      - ./configs/docker/kvrocks.conf:/etc/kvrocks/kvrocks.conf:ro
+      - kvrocks-data:/data
+    ports:
+      - "6383:6383"
+
+  ail:
+    build:
+      context: .
+    depends_on:
+      - redis-cache
+      - redis-log
+      - redis-queue
+      - kvrocks
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./configs/docker/core.cfg:/opt/ail/configs/core.cfg:ro
+      - ail-logs:/opt/ail/logs
+      - ail-pastes:/opt/ail/PASTES
+      - ail-files:/opt/ail/FILES
+      - ail-crawled:/opt/ail/crawled
+
+volumes:
+  redis-cache-data:
+  redis-log-data:
+  redis-queue-data:
+  kvrocks-data:
+  ail-logs:
+  ail-pastes:
+  ail-files:
+  ail-crawled:
